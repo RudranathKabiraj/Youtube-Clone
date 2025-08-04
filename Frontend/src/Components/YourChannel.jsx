@@ -359,7 +359,7 @@ function YourChannel() {
       {activeTab === 'Playlists' && <div className="p-4">Playlists content goes here...</div>}
       {activeTab === 'Posts' && <div className="p-4">Posts content goes here...</div>}
 
-      {/* Edit Channel Modal */}
+      {/* Edit Channel Model */}
       {showEditChannel && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-full max-w-md text-gray-900 overflow-y-auto max-h-[80vh]">
@@ -452,7 +452,7 @@ function YourChannel() {
         </div>
       )}
 
-      {/* Upload Video Modal */}
+      {/* Upload Video Model */}
       {showUpload && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-full max-w-md text-gray-900">
@@ -624,7 +624,7 @@ function YourChannel() {
         </div>
       )}
 
-      {/* Manage Videos Modal */}
+      {/* Manage Videos Model */}
       {showManageVideos && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-full max-w-md text-gray-900">

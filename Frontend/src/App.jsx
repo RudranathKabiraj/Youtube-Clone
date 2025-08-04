@@ -2,12 +2,29 @@ import React, { useState, useEffect } from 'react';
 import Header from './Components/Header.jsx';
 import SideBar from './Components/SideBar.jsx';
 import { Outlet } from 'react-router-dom';
+import axios from 'axios';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchedVal, setSearchedVal] = useState("");
   const [searchActive, setSearchActive] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [videos, setVideos] = useState([]);
+
+  // Fetch videos from API
+  const refreshVideos = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/videos');
+      setVideos(response.data || []);
+    } catch (err) {
+      console.error('Failed to fetch videos:', err);
+    }
+  };
+
+  // Initial fetch on mount
+  useEffect(() => {
+    refreshVideos();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -28,14 +45,14 @@ function App() {
   return (
     <>
       {/* Header (fixed) */}
-<Header
-  sidebarOpen={sidebarOpen}
-  setSidebarOpen={setSidebarOpen}
-  searchedVal={searchedVal}
-  setSearchedVal={setSearchedVal}
-  onSearch={() => setSearchActive(true)} // ✅ keep this
-/>
-
+      <Header
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        searchedVal={searchedVal}
+        setSearchedVal={setSearchedVal}
+        onSearch={handleSearch}
+        refreshVideos={refreshVideos}
+      />
 
       {/* Sidebar + Main Content */}
       <div className="flex min-h-screen pt-14">
@@ -50,6 +67,8 @@ function App() {
               setSearchedVal,
               searchActive,
               setSearchActive,
+              videos,
+              refreshVideos
             }}
           />
         </main>

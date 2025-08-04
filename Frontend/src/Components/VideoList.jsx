@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Video from './Video.jsx';
-import { useOutletContext, useLocation } from 'react-router-dom'; // ✅ useLocation added
+import { useOutletContext, useLocation } from 'react-router-dom';
 
 function VideoList({ sidebarOpen }) {
   const categories = [
-    "All", "Programming", "Tech", "Design", "AI","Movie",
+    "All", "Programming", "Tech", "Design", "AI", "Movie",
     "Gaming", "Vlogs", "Music", "Education"
   ];
 
-  const [videos, setVideos] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [filteredVideos, setFilteredVideos] = useState([]);
 
@@ -17,28 +15,16 @@ function VideoList({ sidebarOpen }) {
     searchedVal,
     setSearchedVal,
     searchActive,
-    setSearchActive
+    setSearchActive,
+    videos,
+    refreshVideos
   } = useOutletContext();
 
-  const location = useLocation(); // ✅ for detecting navigation
+  const location = useLocation();
 
-  // ✅ Fetch all videos once
+  // Filter videos based on search
   useEffect(() => {
-    const fetchVideos = async () => {
-      try {
-        const { data } = await axios.get("http://localhost:8000/api/videos");
-        setVideos(data);
-        setFilteredVideos(data);
-      } catch (err) {
-        console.error("Failed to load videos:", err);
-      }
-    };
-    fetchVideos();
-  }, []);
-
-  // ✅ Filter videos on search
-  useEffect(() => {
-    if (searchActive) {
+    if (searchActive && searchedVal.trim()) {
       const term = searchedVal.trim().toLowerCase();
       const filtered = videos.filter(v =>
         v.title?.toLowerCase().includes(term)
@@ -47,9 +33,9 @@ function VideoList({ sidebarOpen }) {
       setSelectedCategory("All");
       setSearchActive(false);
     }
-  }, [searchActive, searchedVal, videos]);
+  }, [searchActive, searchedVal, videos, setSearchActive]);
 
-  // ✅ Auto-show all or filtered by category when input is cleared
+  // Update filtered videos when category or videos change
   useEffect(() => {
     if (searchedVal.trim() === "") {
       if (selectedCategory === "All") {
@@ -63,7 +49,7 @@ function VideoList({ sidebarOpen }) {
     }
   }, [searchedVal, selectedCategory, videos]);
 
-  // ✅ Reset filters when navigating to "/"
+  // Reset filters when navigating to "/"
   useEffect(() => {
     if (location.pathname === "/") {
       setSelectedCategory("All");
@@ -71,7 +57,7 @@ function VideoList({ sidebarOpen }) {
       setSearchActive(false);
       setFilteredVideos(videos);
     }
-  }, [location.pathname, videos]);
+  }, [location.pathname, videos, setSearchedVal, setSearchActive]);
 
   const handleCategoryClick = (cat) => {
     setSelectedCategory(cat);

@@ -3,21 +3,20 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import UserModal from './UserModel.jsx';
 import axios from 'axios';
-
+import { MdClose, MdUpload } from 'react-icons/md';
 import { RxHamburgerMenu } from 'react-icons/rx';
 import { CiSearch } from 'react-icons/ci';
 import { FaBell } from 'react-icons/fa';
 import { RiVideoUploadLine } from 'react-icons/ri';
 import { BsMic, BsMicMute } from 'react-icons/bs';
 
-function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSearch }) {
+function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSearch, refreshVideos }) {
     const { user } = useAuth();
     const [showModal, setShowModal] = useState(false);
     const [showUpload, setShowUpload] = useState(false);
     const [formLoading, setFormLoading] = useState(false);
     const [listening, setListening] = useState(false);
     const recognitionRef = useRef(null);
-
     const [form, setForm] = useState({
         title: '',
         videoLink: '',
@@ -26,13 +25,21 @@ function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSe
         category: ''
     });
 
+    // Function to parse YouTube video ID from various input formats
+    const parseYouTubeId = (input) => {
+        if (!input) return '';
+        const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})|([^"&?/\s]{11})/i;
+        const match = input.match(regex);
+        return match ? match[1] || match[2] : '';
+    };
+
     const handleSearchInput = (e) => {
-        setSearchedVal(e.target.value); // Do NOT search here
+        setSearchedVal(e.target.value);
     };
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        if (onSearch) onSearch(); // Trigger only on Enter or search button click
+        if (onSearch) onSearch();
     };
 
     const handleMicClick = () => {
@@ -52,31 +59,36 @@ function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSe
         recognition.onend = () => setListening(false);
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
-            setSearchedVal(prev => (prev + ' ' + transcript).trim()); // Just update input, don't search
+            setSearchedVal(prev => (prev + ' ' + transcript).trim());
         };
         recognition.onerror = () => setListening(false);
 
         recognition.start();
     };
 
+    const handleFormChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
     const handleUploadSubmit = async (e) => {
         e.preventDefault();
         setFormLoading(true);
-
+        const videoId = parseYouTubeId(form.videoLink);
+        if (!videoId) {
+            alert("Please enter a valid YouTube video ID or URL.");
+            setFormLoading(false);
+            return;
+        }
         const trimmed = {
             title: form.title.trim(),
-            videoLink: form.videoLink.trim(),
-            thumbnail: form.thumbnail.trim(),
+            videoLink: videoId,
+            thumbnail: form.thumbnail.trim() || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
             description: form.description.trim(),
             category: form.category.trim()
         };
-
-        if (!trimmed.title || !trimmed.videoLink || !trimmed.thumbnail) {
+        if (!trimmed.title || !trimmed.videoLink) {
             alert("Please fill in all required fields.");
             setFormLoading(false);
             return;
         }
-
         try {
             await axios.post(
                 "http://localhost:8000/api/video",
@@ -92,6 +104,8 @@ function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSe
                 description: '',
                 category: ''
             });
+            // Trigger video list refresh
+            if (refreshVideos) refreshVideos();
         } catch (err) {
             alert("Failed to upload video: " + (err.response?.data?.message || err.message));
         } finally {
@@ -101,21 +115,85 @@ function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSe
 
     return (
         <>
-            {/* Upload Modal */}
+            {/* Upload Video Modal */}
             {showUpload && (
-                <div className="fixed inset-0 bg-gray-200 bg-opacity-50 flex items-center justify-center z-[3000]">
-                    <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-lg mx-4 sm:mx-0">
-                        <h2 className="text-xl font-semibold mb-4 text-black">Upload Video</h2>
-                        <form onSubmit={handleUploadSubmit} className="space-y-4">
-                            <input className="w-full px-3 sm:px-4 py-2 rounded border text-sm sm:text-base" name="title" type="text" placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required autoFocus />
-                            <input className="w-full px-3 sm:px-4 py-2 rounded border text-sm sm:text-base" name="videoLink" type="url" placeholder="Video Link" value={form.videoLink} onChange={e => setForm({ ...form, videoLink: e.target.value })} required />
-                            <input className="w-full px-3 sm:px-4 py-2 rounded border text-sm sm:text-base" name="thumbnail" type="url" placeholder="Thumbnail URL" value={form.thumbnail} onChange={e => setForm({ ...form, thumbnail: e.target.value })} required />
-                            <textarea className="w-full px-3 sm:px-4 py-2 rounded border text-sm sm:text-base" name="description" placeholder="Description" rows={2} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
-                            <input className="w-full px-3 sm:px-4 py-2 rounded border text-sm sm:text-base" name="category" type="text" placeholder="Category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} />
-                            <div className="flex justify-end gap-2 sm:gap-4">
-                                <button type="button" onClick={() => setShowUpload(false)} className="px-3 sm:px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-sm sm:text-base" disabled={formLoading}>Cancel</button>
-                                <button type="submit" disabled={!form.title || !form.videoLink || !form.thumbnail || formLoading} className="px-3 sm:px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white text-sm sm:text-base disabled:opacity-50">
-                                    {formLoading ? "Uploading..." : "Upload"}
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
+                    <div className="bg-white p-6 rounded-lg w-full max-w-md text-gray-900 max-h-[80vh] overflow-y-auto">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-semibold">Upload Video</h2>
+                            <button onClick={() => setShowUpload(false)} className="text-gray-600 hover:text-gray-800">
+                                <MdClose size={24} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleUploadSubmit}>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1">Video Title</label>
+                                <input
+                                    name="title"
+                                    value={form.title}
+                                    onChange={handleFormChange}
+                                    placeholder="Video title"
+                                    className="w-full p-2 bg-gray-100 rounded border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1">YouTube Video ID or URL</label>
+                                <input
+                                    name="videoLink"
+                                    value={form.videoLink}
+                                    onChange={handleFormChange}
+                                    placeholder="e.g., SqcY0GlETPk or https://www.youtube.com/watch?v=SqcY0GlETPk"
+                                    className="w-full p-2 bg-gray-100 rounded border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1">Thumbnail URL</label>
+                                <input
+                                    name="thumbnail"
+                                    value={form.thumbnail}
+                                    onChange={handleFormChange}
+                                    placeholder="Thumbnail image URL (leave blank for default YouTube thumbnail)"
+                                    className="w-full p-2 bg-gray-100 rounded border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1">Video Description</label>
+                                <textarea
+                                    name="description"
+                                    value={form.description}
+                                    onChange={handleFormChange}
+                                    placeholder="Video description"
+                                    className="w-full p-2 bg-gray-100 rounded border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    rows={2}
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1">Category</label>
+                                <input
+                                    name="category"
+                                    value={form.category}
+                                    onChange={handleFormChange}
+                                    placeholder="Category"
+                                    className="w-full p-2 bg-gray-100 rounded border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div className="flex justify-end space-x-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowUpload(false)}
+                                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 flex items-center"
+                                    disabled={formLoading}
+                                >
+                                    <MdClose className="mr-2" /> Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
+                                    disabled={formLoading}
+                                >
+                                    <MdUpload className="mr-2" /> {formLoading ? 'Uploading...' : 'Upload'}
                                 </button>
                             </div>
                         </form>
@@ -123,72 +201,78 @@ function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSe
                 </div>
             )}
 
+            {/* User Modal */}
+            {showModal && (
+                <div className="fixed inset-0 bg-gray-200 bg-opacity-50 flex items-center justify-center z-[2000]">
+                    <div className="bg-white rounded-lg p-2 sm:p-4 w-48 sm:w-64">
+                        <UserModal setShowModal={setShowModal} onClose={() => setShowModal(false)} />
+                    </div>
+                </div>
+            )}
+
             {/* Header Bar */}
-            <header className="fixed top-0 left-0 right-0 z-50 bg-white text-black shadow-sm flex items-center justify-between px-2 sm:px-4 h-12 sm:h-14 border-b border-gray-200">
+            <header className="fixed top-0 left-0 right-0 z-50 bg-white text-black shadow-sm flex items-center justify-between px-2 sm:px-4 h-14 border-b border-gray-200">
                 {/* Left: Menu + Logo */}
-                <div className="flex items-center gap-2 sm:gap-4 min-w-[80px] sm:min-w-[120px]">
-                    <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-lg sm:text-xl hover:bg-gray-100 p-1 sm:p-2 rounded-full">
+                <div className="flex items-center gap-4 min-w-[120px]">
+                    <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-xl hover:bg-gray-100 p-2 rounded-full">
                         <RxHamburgerMenu />
                     </button>
                     <Link to="/" className="flex items-center gap-1">
-                        <img src="https://www.gstatic.com/youtube/img/branding/youtubelogo/svg/youtubelogo.svg" alt="YouTube" className="h-4 sm:h-5 md:h-6" />
+                        <img src="https://www.gstatic.com/youtube/img/branding/youtubelogo/svg/youtubelogo.svg" alt="YouTube" className="h-5 md:h-6" />
                     </Link>
                 </div>
 
                 {/* Center: Search */}
-                <form onSubmit={handleSearchSubmit} className="flex flex-1 justify-center max-w-xs sm:max-w-md md:max-w-2xl">
-                    <div className="flex w-full max-w-xs sm:max-w-md md:max-w-xl border border-gray-300 rounded-full overflow-hidden bg-white shadow-sm">
+                <form onSubmit={handleSearchSubmit} className="flex flex-1 justify-center max-w-md md:max-w-2xl">
+                    <div className="flex w-full max-w-md md:max-w-xl border border-gray-300 rounded-full overflow-hidden bg-white shadow-sm">
                         <div className="flex items-center px-3 text-gray-500">
-                            <CiSearch className="text-lg sm:text-xl" />
+                            <CiSearch className="text-xl" />
                         </div>
                         <input
                             type="text"
                             value={searchedVal}
                             onChange={handleSearchInput}
                             placeholder="Search"
-                            className="w-full px-2 sm:px-4 py-1 text-xs sm:text-sm outline-none text-gray-800 bg-transparent"
+                            className="w-full px-4 py-1 text-sm outline-none text-gray-800 bg-transparent"
                         />
                         {searchedVal && (
                             <button
                                 type="button"
-                                onClick={() => {
-                                    setSearchedVal('');
-                                    setSearchActive(false);
-                                }}
+                                onClick={() => setSearchedVal('')}
                                 className="px-2 text-gray-400 hover:text-gray-600"
                             >
-                                &#10005; {/* Unicode X or use <RxCross2 /> from react-icons */}
+                                &#10005;
                             </button>
                         )}
                         <button
                             type="submit"
-                            className="px-2 sm:px-4 bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600"
+                            className="px-4 bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600"
                         >
-                            <CiSearch className="text-lg sm:text-xl" />
+                            <CiSearch className="text-xl" />
                         </button>
                     </div>
                     <button
                         type="button"
-                        className="ml-1 sm:ml-2 p-1 sm:p-2 bg-gray-100 hover:bg-gray-200 rounded-full"
+                        className="ml-2 p-2 bg-gray-100 hover:bg-gray-200 rounded-full"
                         onClick={handleMicClick}
                     >
                         {listening ? (
-                            <BsMicMute className="text-base sm:text-lg text-red-500" />
+                            <BsMicMute className="text-lg text-red-500" />
                         ) : (
-                            <BsMic className="text-base sm:text-lg" />
+                            <BsMic className="text-lg" />
                         )}
                     </button>
                 </form>
 
                 {/* Right: Upload + Notifications + User */}
-                <div className="flex items-center gap-2 sm:gap-4 ml-2 sm:ml-4">
+                <div className="flex items-center gap-4 ml-4">
                     {user?.channelId && (
-                        <button onClick={() => setShowUpload(true)} className="hover:bg-gray-100 p-1 sm:p-2 rounded-full text-lg sm:text-xl">
+                        <button onClick={() => setShowUpload(true)} className="hover:bg-gray-100 p-2 rounded-full text-xl">
                             <RiVideoUploadLine />
                         </button>
                     )}
                     {user && (
-                        <button className="hover:bg-gray-100 p-1 sm:p-2 rounded-full text-lg sm:text-xl">
+                        <button className="hover:bg-gray-100 p-2 rounded-full text-xl">
                             <FaBell />
                         </button>
                     )}
@@ -198,32 +282,24 @@ function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSe
                                 src={user.avatar}
                                 alt="User"
                                 onClick={() => setShowModal(v => !v)}
-                                className="w-6 sm:w-8 h-6 sm:h-8 rounded-full object-cover cursor-pointer"
+                                className="w-8 h-8 rounded-full object-cover cursor-pointer"
                             />
-                            {showModal && (
-                                <div className="fixed inset-0 bg-gray-200 bg-opacity-50 flex items-center justify-center z-[3000]">
-                                    <div className="bg-white rounded-lg p-2 sm:p-4 w-48 sm:w-64">
-                                        <UserModal setShowModal={setShowModal} onClose={() => setShowModal(false)} />
-                                    </div>
-                                </div>
-                            )}
                         </div>
                     ) : (
                         <div className="flex items-center gap-3">
                             <Link
                                 to="/login"
-                                className="px-4 py-1.5 text-xs sm:text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-100 transition"
+                                className="px-4 py-1.5 text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-100 transition"
                             >
                                 Log In
                             </Link>
                             <Link
                                 to="/register"
-                                className="px-4 py-1.5 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
+                                className="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
                             >
                                 Register
                             </Link>
                         </div>
-
                     )}
                 </div>
             </header>
