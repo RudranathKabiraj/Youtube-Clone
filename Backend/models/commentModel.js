@@ -24,4 +24,4 @@ const commentSchema = new mongoose.Schema({
 
 const CommentModel = mongoose.model("Comment", commentSchema); // create model based on the schema
 
-export default CommentModel; // export model
+export default CommentModel; 
