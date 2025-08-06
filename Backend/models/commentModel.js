@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// define schema
+// Define Mongoose schema for storing user comments on videos
 const commentSchema = new mongoose.Schema({
     user: { 
         type: mongoose.Schema.Types.ObjectId, // user _id
