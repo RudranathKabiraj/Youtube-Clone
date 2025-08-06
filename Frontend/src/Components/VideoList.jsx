@@ -4,11 +4,11 @@ import { useOutletContext, useLocation } from 'react-router-dom';
 
 function VideoList({ sidebarOpen }) {
   const categories = [
-    "All", "Programming", "Tech", "Design", "AI", "Movie",
-    "Gaming", "Vlogs", "Music", "Education"
+    'All', 'Programming', 'Tech', 'Design', 'AI', 'Movie',
+    'Gaming', 'Vlogs', 'Music', 'Education',
   ];
 
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [filteredVideos, setFilteredVideos] = useState([]);
 
   const {
@@ -17,7 +17,7 @@ function VideoList({ sidebarOpen }) {
     searchActive,
     setSearchActive,
     videos,
-    refreshVideos
+    refreshVideos,
   } = useOutletContext();
 
   const location = useLocation();
@@ -26,22 +26,22 @@ function VideoList({ sidebarOpen }) {
   useEffect(() => {
     if (searchActive && searchedVal.trim()) {
       const term = searchedVal.trim().toLowerCase();
-      const filtered = videos.filter(v =>
+      const filtered = videos.filter((v) =>
         v.title?.toLowerCase().includes(term)
       );
       setFilteredVideos(filtered);
-      setSelectedCategory("All");
+      setSelectedCategory('All');
       setSearchActive(false);
     }
   }, [searchActive, searchedVal, videos, setSearchActive]);
 
   // Update filtered videos when category or videos change
   useEffect(() => {
-    if (searchedVal.trim() === "") {
-      if (selectedCategory === "All") {
+    if (searchedVal.trim() === '') {
+      if (selectedCategory === 'All') {
         setFilteredVideos(videos);
       } else {
-        const filtered = videos.filter(v =>
+        const filtered = videos.filter((v) =>
           v.category?.toLowerCase() === selectedCategory.toLowerCase()
         );
         setFilteredVideos(filtered);
@@ -51,9 +51,9 @@ function VideoList({ sidebarOpen }) {
 
   // Reset filters when navigating to "/"
   useEffect(() => {
-    if (location.pathname === "/") {
-      setSelectedCategory("All");
-      setSearchedVal("");
+    if (location.pathname === '/') {
+      setSelectedCategory('All');
+      setSearchedVal('');
       setSearchActive(false);
       setFilteredVideos(videos);
     }
@@ -61,13 +61,13 @@ function VideoList({ sidebarOpen }) {
 
   const handleCategoryClick = (cat) => {
     setSelectedCategory(cat);
-    setSearchedVal("");
+    setSearchedVal('');
     setSearchActive(false);
 
-    if (cat === "All") {
+    if (cat === 'All') {
       setFilteredVideos(videos);
     } else {
-      const filtered = videos.filter(v =>
+      const filtered = videos.filter((v) =>
         v.category?.toLowerCase() === cat.toLowerCase()
       );
       setFilteredVideos(filtered);
@@ -75,17 +75,20 @@ function VideoList({ sidebarOpen }) {
   };
 
   return (
-    <div className={`px-4 sm:px-6 lg:px-8 pt-4 ${sidebarOpen ? 'ml-3' : 'ml-0'} transition-all duration-300`}>
+    <div
+      className="px-2 sm:px-4 md:px-6 lg:px-8 pt-4 min-h-[calc(100vh-56px)] text-black"
+    >
       {/* Category Filter Bar */}
-      <div className="flex gap-2 overflow-x-auto py-2 scrollbar-hide mb-6">
-        {categories.map(cat => (
+      <div className="flex gap-2 overflow-x-auto py-2 mb-6">
+        {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => handleCategoryClick(cat)}
-            className={`px-4 py-1 rounded-full border text-sm whitespace-nowrap
-              ${selectedCategory === cat
-                ? 'bg-gray-900 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+            className={`px-4 py-1 rounded-full text-sm whitespace-nowrap font-medium transition-colors ${
+              selectedCategory === cat
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-black hover:bg-gray-400'
+            }`}
           >
             {cat}
           </button>
@@ -93,13 +96,13 @@ function VideoList({ sidebarOpen }) {
       </div>
 
       {/* Videos Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 max-w-screen-xl px-6 py-8 mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-screen-xl mx-auto">
         {filteredVideos.length > 0 ? (
-          filteredVideos.map(video => (
+          filteredVideos.map((video) => (
             <Video key={video._id} {...video} />
           ))
         ) : (
-          <div className="col-span-full text-center text-gray-500 mt-10">
+          <div className="col-span-full text-center text-gray-400 mt-10">
             No videos found.
           </div>
         )}
