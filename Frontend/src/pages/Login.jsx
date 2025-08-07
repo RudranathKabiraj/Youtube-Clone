@@ -63,7 +63,7 @@ function Login() {
                             onChange={handleChange}
                             required
                             autoComplete="email"
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900"
                         />
                     </div>
 
@@ -80,7 +80,7 @@ function Login() {
                             onChange={handleChange}
                             required
                             autoComplete="current-password"
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900"
                         />
                     </div>
 

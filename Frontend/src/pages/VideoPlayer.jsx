@@ -447,7 +447,7 @@ function VideoPlayer() {
             />
             <div className="flex-1 space-y-2">
               <input
-                className="w-full px-4 py-2 rounded-full bg-gray-100  text-sm focus:outline-none focus:ring focus:ring-blue-500"
+                className="w-full px-4 py-2 rounded-full bg-gray-100  text-sm focus:outline-none focus:ring text-black focus:ring-blue-500"
                 placeholder={user ? "Add a comment..." : "Login to comment"}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
