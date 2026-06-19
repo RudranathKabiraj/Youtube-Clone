@@ -4,7 +4,7 @@ import { STATIC_RECOMMENDED } from "../assets/recommendedVideos.js"; // import r
 import { useAuth } from "../contexts/AuthContext.jsx"; // import logged in user from context
 import { formatDistanceToNow } from "date-fns";
 import axios from "axios"; // import axios for calling APIs
-import API from "./api.js";
+import API from "../api.js";
 
 
 // import icons from react-icons library
