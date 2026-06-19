@@ -5,6 +5,7 @@ import { StrictMode, lazy, Suspense } from "react"; // import LAZY LOADING and s
 import { BsYoutube } from "react-icons/bs"; // import youtube icon from react-icons library
 import NotFound from "./pages/NotFound.jsx"; // import not found 404 page
 import "./App.css";
+import Settings from "./pages/Settings";
 
 // Lazy load all main pages/components for performance
 const App = lazy(() => import("./App.jsx"));
@@ -100,6 +101,14 @@ const router = createBrowserRouter([
       </Suspense>
     ),
   },
+  {
+  path: "/settings",
+  element: (
+    <Suspense fallback={<LoadingFallback />}>
+      <Settings />
+    </Suspense>
+  ),
+},
   {
     path: "/channels/:id",
     element: (
