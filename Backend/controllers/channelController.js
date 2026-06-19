@@ -1,5 +1,5 @@
 import ChannelModel from '../models/channelModel.js';
-import UserModel from '../models/usermodel.js';
+import UserModel from '../models/userModel.js';
 
 // Create a new channel (protected)
 export const createChannel = async (req, res) => {
