@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useAuth } from "../contexts/AuthContext";
-import API from '../api.js';
+import API from "./api.js";
 
 function Channels() {
     const { id } = useParams();

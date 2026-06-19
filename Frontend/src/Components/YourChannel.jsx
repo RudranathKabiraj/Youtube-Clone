@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { MdEdit, MdDelete, MdUpload, MdSave, MdClose } from "react-icons/md";
-import API from '../api.js';
+import API from "./api.js";
 
 
 function YourChannel() {
