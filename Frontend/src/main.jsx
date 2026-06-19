@@ -10,7 +10,7 @@ import Settings from "./pages/Settings";
 // Lazy load all main pages/components for performance
 const App = lazy(() => import("./App.jsx"));
 const VideoPlayer = lazy(() => import("./pages/VideoPlayer.jsx"));
-const Homepage = lazy(() => import("./pages/Homepage.jsx"));
+const Homepage = lazy(() => import("./pages/HomePage.jsx"));
 const Register = lazy(() => import("./pages/Register.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const CreateChannel = lazy(() => import("./Components/CreateChannel.jsx"));
