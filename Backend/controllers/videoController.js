@@ -2,8 +2,7 @@
 
 import VideoModel from '../models/videoModel.js';
 import ChannelModel from '../models/channelModel.js';
-import UserModel from '../models/usermodel.js';
-
+import UserModel from '../models/userModel.js';  // 
 //--------------------------------------------------------------------------
 
 // Upload a new video (Protected)
