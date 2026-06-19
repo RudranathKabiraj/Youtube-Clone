@@ -4,6 +4,8 @@ import { STATIC_RECOMMENDED } from "../assets/recommendedVideos.js"; // import r
 import { useAuth } from "../contexts/AuthContext.jsx"; // import logged in user from context
 import { formatDistanceToNow } from "date-fns";
 import axios from "axios"; // import axios for calling APIs
+import API from '../api.js';
+
 
 // import icons from react-icons library
 import {
@@ -41,9 +43,9 @@ function VideoPlayer() {
     setLoading(true);
     setError(null);
     Promise.all([
-      axios.get("http://localhost:8000/api/videos"),
-      axios.get(`http://localhost:8000/api/video/${videoId}`),
-      axios.get(`http://localhost:8000/api/comment/${videoId}`),
+      axios.get("${API}/api/videos"),
+      axios.get(`${API}/api/video/${videoId}`),
+      axios.get(`${API}/api/comment/${videoId}`),
     ])
       .then(([videos, videoRes, commentRes]) => {
         setAllVideos(videos.data);
@@ -86,7 +88,7 @@ function VideoPlayer() {
     try {
       if (liked) {
         const res = await axios.patch(
-          `http://localhost:8000/api/video/${videoId}/unlike`,
+          `${API}/api/video/${videoId}/unlike`,
           {},
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
@@ -95,7 +97,7 @@ function VideoPlayer() {
         setDislikeCount(res.data.dislikes);
       } else {
         const res = await axios.patch(
-          `http://localhost:8000/api/video/${videoId}/like`,
+          `${API}/api/video/${videoId}/like`,
           {},
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
@@ -114,7 +116,7 @@ function VideoPlayer() {
     try {
       if (disliked) {
         const res = await axios.patch(
-          `http://localhost:8000/api/video/${videoId}/undislike`,
+          `${API}/api/video/${videoId}/undislike`,
           {},
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
@@ -123,7 +125,7 @@ function VideoPlayer() {
         setDislikeCount(res.data.dislikes);
       } else {
         const res = await axios.patch(
-          `http://localhost:8000/api/video/${videoId}/dislike`,
+          `${API}/api/video/${videoId}/dislike`,
           {},
           { headers: { Authorization: `Bearer ${user.token}` } }
         );
@@ -142,13 +144,13 @@ function VideoPlayer() {
     if (!user || !comment.trim()) return;
     try {
       await axios.post(
-        "http://localhost:8000/api/comment",
+        "${API}/api/comment",
         { text: comment, videoId },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       // Fetch updated comments from backend
       const res = await axios.get(
-        `http://localhost:8000/api/comment/${videoId}`
+        `${API}/api/comment/${videoId}`
       );
 
       // Sort comments by timestamp/createdAt descending (latest first)
@@ -179,12 +181,12 @@ function VideoPlayer() {
     if (!window.confirm("Delete this comment?")) return;
     try {
       await axios.delete(
-        `http://localhost:8000/api/comment/${id}`,
+        `${API}/api/comment/${id}`,
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       // Always fetch updated comments from backend after delete
       const res = await axios.get(
-        `http://localhost:8000/api/comment/${videoId}`
+        `${API}/api/comment/${videoId}`
       );
       // Sort comments by timestamp/createdAt descending (latest first)
       const sortedComments = (res.data || []).slice().sort((a, b) => {
@@ -219,13 +221,13 @@ function VideoPlayer() {
     if (!user || !editText.trim()) return;
     try {
       await axios.patch(
-        `http://localhost:8000/api/comment/${id}`,
+        `${API}/api/comment/${id}`,
         { text: editText },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       // Fetch updated comments from backend
       const res = await axios.get(
-        `http://localhost:8000/api/comment/${videoId}`
+        `${API}/api/comment/${videoId}`
       );
       // Sort comments by timestamp/createdAt descending (latest first)
       const sortedComments = (res.data || []).slice().sort((a, b) => {

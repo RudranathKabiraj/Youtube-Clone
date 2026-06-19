@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useAuth } from "../contexts/AuthContext";
+import API from '../api.js';
 
 function Channels() {
     const { id } = useParams();
@@ -19,7 +20,7 @@ function Channels() {
         setLoading(true);
         setError(null);
         axios
-            .get(`http://localhost:8000/api/channel/${id.replace(':', '')}`)
+            .get(`${API}/api/channel/${id.replace(':', '')}`)
             .then(res => setChannel(res.data))
             .catch(() => setError("Failed to load channel"))
             .finally(() => setLoading(false));

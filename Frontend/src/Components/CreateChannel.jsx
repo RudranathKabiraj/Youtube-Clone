@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
+import API from '../api.js';
+
 
 function CreateChannel() {
   const [form, setForm] = useState({
@@ -43,7 +45,7 @@ function CreateChannel() {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:8000/api/channel",
+        "${API}/api/channel",
         trimmed,
         { headers: { Authorization: `Bearer ${user.token}` } }
       );

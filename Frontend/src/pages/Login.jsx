@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import axios from 'axios';
+import API from '../api.js';
+
 
 function Login() {
     const { setUser } = useAuth();
@@ -19,7 +21,7 @@ function Login() {
         e.preventDefault();
         try {
             const { data } = await axios.post(
-                "http://localhost:8000/api/login",
+                "${API}/api/login",
                 form,
                 {
                     headers: {

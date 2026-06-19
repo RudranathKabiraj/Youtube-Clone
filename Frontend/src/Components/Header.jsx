@@ -9,6 +9,8 @@ import { CiSearch } from 'react-icons/ci';
 import { FaBell } from 'react-icons/fa';
 import { RiVideoUploadLine } from 'react-icons/ri';
 import { BsMic, BsMicMute } from 'react-icons/bs';
+import API from '../api.js';
+
 
 function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSearch, refreshVideos }) {
     const { user } = useAuth();
@@ -91,7 +93,7 @@ function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSe
         }
         try {
             await axios.post(
-                "http://localhost:8000/api/video",
+                "${API}/api/video",
                 trimmed,
                 { headers: { Authorization: `Bearer ${user.token}` } }
             );

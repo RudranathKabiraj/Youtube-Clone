@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { MdEdit, MdDelete, MdUpload, MdSave, MdClose } from "react-icons/md";
+import API from '../api.js';
+
 
 function YourChannel() {
   const { sidebarOpen } = useOutletContext();
@@ -71,7 +73,7 @@ function YourChannel() {
     if (!user?.channelId) return;
     setLoading(true);
     setError(null);
-    axios.get(`http://localhost:8000/api/channel/${user.channelId}`)
+    axios.get(`${API}/api/channel/${user.channelId}`)
       .then(res => {
         setChannel(res.data);
         setVideos(res.data.videos || []);
@@ -89,7 +91,7 @@ function YourChannel() {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this video?")) return;
     try {
-      await axios.delete(`http://localhost:8000/api/video/${id}`, { headers: { Authorization: `Bearer ${user.token}` } });
+      await axios.delete(`${API}/api/video/${id}`, { headers: { Authorization: `Bearer ${user.token}` } });
       setVideos(videos => videos.filter(v => v._id !== id));
       setMenuOpen(null);
       setSelectedVideos(selectedVideos.filter(v => v !== id));
@@ -136,8 +138,8 @@ function YourChannel() {
       return;
     }
     try {
-      await axios.post("http://localhost:8000/api/video", trimmed, { headers: { Authorization: `Bearer ${user.token}` } });
-      const res = await axios.get(`http://localhost:8000/api/channel/${user.channelId}`);
+      await axios.post("${API}/api/video", trimmed, { headers: { Authorization: `Bearer ${user.token}` } });
+      const res = await axios.get(`${API}/api/channel/${user.channelId}`);
       setChannel(res.data);
       setVideos(res.data.videos || []);
       setShowUpload(false);
@@ -172,8 +174,8 @@ function YourChannel() {
       return;
     }
     try {
-      await axios.put(`http://localhost:8000/api/video/${editVideo._id}`, trimmed, { headers: { Authorization: `Bearer ${user.token}` } });
-      const res = await axios.get(`http://localhost:8000/api/channel/${user.channelId}`);
+      await axios.put(`${API}/api/video/${editVideo._id}`, trimmed, { headers: { Authorization: `Bearer ${user.token}` } });
+      const res = await axios.get(`${API}/api/channel/${user.channelId}`);
       setChannel(res.data);
       setVideos(res.data.videos || []);
       setShowEdit(false);
@@ -231,8 +233,8 @@ function YourChannel() {
       return;
     }
     try {
-      await axios.put(`http://localhost:8000/api/updateChannel/${channel._id}`, trimmed, { headers: { Authorization: `Bearer ${user.token}` } });
-      const res = await axios.get(`http://localhost:8000/api/channel/${user.channelId}`);
+      await axios.put(`${API}/api/updateChannel/${channel._id}`, trimmed, { headers: { Authorization: `Bearer ${user.token}` } });
+      const res = await axios.get(`${API}/api/channel/${user.channelId}`);
       setChannel(res.data);
       setShowEditChannel(false);
       setChannelEditForm({ channelName: "", channelBannerUrl: "", channelPicUrl: "", description: "" });
@@ -251,9 +253,9 @@ function YourChannel() {
     if (!window.confirm(`Delete ${selectedVideos.length} video(s)?`)) return;
     try {
       await Promise.all(selectedVideos.map(id =>
-        axios.delete(`http://localhost:8000/api/video/${id}`, { headers: { Authorization: `Bearer ${user.token}` } })
+        axios.delete(`${API}/api/video/${id}`, { headers: { Authorization: `Bearer ${user.token}` } })
       ));
-      const res = await axios.get(`http://localhost:8000/api/channel/${user.channelId}`);
+      const res = await axios.get(`${API}/api/channel/${user.channelId}`);
       setChannel(res.data);
       setVideos(res.data.videos || []);
       setSelectedVideos([]);

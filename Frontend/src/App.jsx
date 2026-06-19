@@ -3,6 +3,8 @@ import Header from './Components/Header.jsx';
 import SideBar from './Components/SideBar.jsx';
 import { Outlet } from 'react-router-dom';
 import axios from 'axios';
+import API from '../api.js';
+
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false); // Closed by default on all devices
@@ -14,7 +16,7 @@ function App() {
 
   const refreshVideos = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/videos');
+      const response = await axios.get(`${API}/api/videos`);
       setVideos(response.data || []);
     } catch (err) {
       console.error('Failed to fetch videos:', err);
