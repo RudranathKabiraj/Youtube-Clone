@@ -9,7 +9,7 @@ import { CiSearch } from 'react-icons/ci';
 import { FaBell } from 'react-icons/fa';
 import { RiVideoUploadLine } from 'react-icons/ri';
 import { BsMic, BsMicMute } from 'react-icons/bs';
-import API from "./api.js";
+import API from "../api.js";
 
 
 function Header({ sidebarOpen, setSidebarOpen, searchedVal, setSearchedVal, onSearch, refreshVideos }) {
