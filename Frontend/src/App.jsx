@@ -3,7 +3,7 @@ import Header from './Components/Header.jsx';
 import SideBar from './Components/SideBar.jsx';
 import { Outlet } from 'react-router-dom';
 import axios from 'axios';
-import API from '../api.js';
+import API from './api.js';
 
 
 function App() {
